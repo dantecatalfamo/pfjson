@@ -88,7 +88,7 @@ print_status(struct pf_status *s, struct pfioc_synflwats *w)
     print_checksum(s->pf_chksum);
     printf(",\n");
     printf("  \"uptime\": ");
-    printf("{\"days\": %lld, \"hours\": %d, \"minutes\": %d, \"seconds\": %d }", (long long)day, hrs, min, sec);
+    printf("{\"days\": %lld, \"hours\": %d, \"minutes\": %d, \"seconds\": %d}", (long long)day, hrs, min, sec);
     printf(",\n");
     if (s->ifname[0] != 0) {
         print_loginterface(s);
