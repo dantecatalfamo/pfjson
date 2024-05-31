@@ -106,10 +106,10 @@ print_status(struct pf_status *s)
 
         printf("    \"%s\": {\n", pf_fcounters[i]);
         printf("      \"total\": %llu,\n", (unsigned long long)s->fcounters[i]);
-        if (counter_rate > 0)
-            printf("      \"rate\": %.1f\n", counter_rate);
-        else
+        if (counter_rate < 0)
             printf("      \"rate\": null\n");
+        else
+            printf("      \"rate\": %.1f\n", counter_rate);
         printf("    }");
         if (i < FCNT_MAX-1)
             printf(",");
@@ -120,7 +120,59 @@ print_status(struct pf_status *s)
     printf("    \"current entries\": {\n");
     printf("      \"total\": %u,\n", s->src_nodes);
     printf("      \"rate\": null\n");
-    printf("    }\n");
+    printf("    },\n");
+    for (i = 0; i < SCNT_MAX; i++) {
+        if (runtime > 0)
+            counter_rate = (double)s->scounters[i] / (double)runtime;
+        else
+            counter_rate = -1;
+        printf("    \"%s\": {\n", pf_scounters[i]);
+        printf("      \"total\": %llu,\n", s->scounters[i]);
+        if (counter_rate < 0)
+            printf("      \"rate\": null\n");
+        else
+            printf("      \"rate\": %.1f\n", counter_rate);
+        printf("    }");
+        if (i < SCNT_MAX-1)
+            printf(",");
+        printf("\n");
+    }
+    printf("  },\n");
+    printf("  \"counters\": {\n");
+    for (i = 0; i < PFRES_MAX; i++) {
+        if (runtime > 0)
+            counter_rate = (double)s->counters[i] / (double)runtime;
+        else
+            counter_rate = -1;
+        printf("    \"%s\": {\n", pf_reasons[i]);
+        printf("      \"total\": %llu,\n", s->counters[i]);
+        if (counter_rate < 0)
+            printf("      \"rate\": null,");
+        else
+            printf("      \"rate\": %.1f\n", counter_rate);
+        printf("    }");
+        if (i < PFRES_MAX-1)
+            printf(",");
+        printf("\n");
+    }
+    printf("  },\n");
+    printf("  \"limit counters\": {\n");
+    for (i = 0; i < LCNT_MAX; i++) {
+        if (runtime > 0)
+            counter_rate = (double)s->lcounters[i] / (double)runtime;
+        else
+            counter_rate = -1;
+        printf("    \"%s\": {\n", pf_lcounters[i]);
+        printf("      \"total\": %llu,\n", s->lcounters[i]);
+        if (counter_rate < 0)
+            printf("      \"rate\": null,\n");
+        else
+            printf("      \"rate\": %.1f\n", counter_rate);
+        printf("    }");
+        if (i < LCNT_MAX-1)
+            printf(",");
+        printf("\n");
+    }
     printf("  }\n");
     printf("}\n");
 }
