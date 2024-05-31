@@ -25,10 +25,10 @@
 }
 
 void print_since(time_t since);
-void print_status(struct pf_status *s);
-const char *loglevel_to_string(int level);
+void print_status(struct pf_status *s, struct pfioc_synflwats *w);
 void print_checksum(u_int8_t *chksum);
 void print_loginterface(struct pf_status *s);
+const char *loglevel_to_string(int level);
 
 const char  *pf_reasons[PFRES_MAX+1] = PFRES_NAMES;
 const char  *pf_lcounters[LCNT_MAX+1] = LCNT_NAMES;
@@ -39,6 +39,7 @@ int
 main(int argc, char **argv)
 {
     struct pf_status s;
+    struct pfioc_synflwats w;
     int dev;
 
     dev = open("/dev/pf", O_RDWR);
@@ -50,13 +51,16 @@ main(int argc, char **argv)
     if (ioctl(dev, DIOCGETSTATUS, &s) == -1)
         err(1, "DIOCGETSTATUS");
 
-    print_status(&s);
+    if(ioctl(dev, DIOCGETSYNFLWATS, &w) == -1)
+        err(1, "DIOCGETSYNFLWATS");
+
+    print_status(&s, &w);
 
     return 0;
 }
 
 void
-print_status(struct pf_status *s)
+print_status(struct pf_status *s, struct pfioc_synflwats *w)
 {
     int i;
     unsigned int sec, min, hrs;
@@ -173,6 +177,10 @@ print_status(struct pf_status *s)
             printf(",");
         printf("\n");
     }
+    printf("  },\n");
+    printf("  \"adaptive syncookies watermarks\": {\n");
+    printf("    \"start\": %d,\n", w->hiwat);
+    printf("    \"end\": %d\n", w->lowat);
     printf("  }\n");
     printf("}\n");
 }
